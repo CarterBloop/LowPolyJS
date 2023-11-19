@@ -56,7 +56,7 @@ scene.background = new THREE.Color(0x88ccee);
 
 //scene.fog = new THREE.Fog(0x88ccee, 0, 50);
 
-// Camera
+// --- Camera --- //
 const camera = new THREE.PerspectiveCamera(
   70,
   window.innerWidth / window.innerHeight,
@@ -65,25 +65,7 @@ const camera = new THREE.PerspectiveCamera(
 );
 camera.rotation.order = "YXZ";
 
-// const ambientLight = new THREE.HemisphereLight(0x446688, 0x0c2e44, 2);
-// scene.add(ambientLight);
-
-// const directionalLight = new THREE.DirectionalLight(0xffffff, .5);
-// directionalLight.position.set(-5, 25, -1);
-// directionalLight.castShadow = true;
-// directionalLight.shadow.camera.near = 0.01;
-// directionalLight.shadow.camera.far = 500;
-// directionalLight.shadow.camera.right = 30;
-// directionalLight.shadow.camera.left = -30;
-// directionalLight.shadow.camera.top = 30;
-// directionalLight.shadow.camera.bottom = -30;
-// directionalLight.shadow.mapSize.width = 1024;
-// directionalLight.shadow.mapSize.height = 1024;
-// directionalLight.shadow.radius = 4;
-// directionalLight.shadow.bias = -0.00006;
-// scene.add(directionalLight);
-
-// LIGHTS
+// --- Lights --- //
 
 const hemiLight = new THREE.HemisphereLight(0xffffff, 0xffffff, 1);
 hemiLight.color.setHSL(0.6, 1, 0.6);
@@ -93,8 +75,6 @@ scene.add(hemiLight);
 
 const hemiLightHelper = new THREE.HemisphereLightHelper(hemiLight, 10);
 scene.add(hemiLightHelper);
-
-//
 
 const dirLight = new THREE.DirectionalLight(0xffffff, 3);
 dirLight.color.setHSL(0.1, 1, 0.95);
@@ -122,7 +102,7 @@ const dirLightHelper = new THREE.DirectionalLightHelper(dirLight, 10);
 scene.add(dirLightHelper);
 
 
-///
+// --- Renderer --- //
 
 const container = document.getElementById("container");
 
@@ -139,12 +119,16 @@ stats.domElement.style.position = "absolute";
 stats.domElement.style.top = "0px";
 container.appendChild(stats.domElement);
 
+// --- Physics/game constants --- //
+
 const GRAVITY = 30;
 
 const NUM_SPHERES = 100;
 const SPHERE_RADIUS = 0.2;
 
 const STEPS_PER_FRAME = 5;
+
+// --- Spheres --- //
 
 const sphereGeometry = new THREE.IcosahedronGeometry(SPHERE_RADIUS, 5);
 const sphereMaterial = new THREE.MeshLambertMaterial({ color: 0xdede8d });
@@ -166,6 +150,8 @@ for (let i = 0; i < NUM_SPHERES; i++) {
   });
 }
 
+// --- Collisions --- //
+
 const worldOctree = new Octree();
 
 const playerCollider = new Capsule(
@@ -173,6 +159,8 @@ const playerCollider = new Capsule(
   new THREE.Vector3(0, 1, 0),
   0.35
 );
+
+// --- Player --- //
 
 const playerVelocity = new THREE.Vector3();
 const playerDirection = new THREE.Vector3();
@@ -398,11 +386,12 @@ function getSideVector() {
   return playerDirection;
 }
 
+// --- Controls --- //
+
 function controls(deltaTime) {
 
   if (devMode) {
     // In dev mode, allow flying by controlling movement in all directions
-    // Make sure to update the player position to the camera position
     const speedDelta = deltaTime * 25;
     if (keyStates["KeyW"]) {
       camera.translateZ(-speedDelta);
@@ -450,35 +439,7 @@ function controls(deltaTime) {
   }
 }
 
-// const loader = new GLTFLoader().setPath("./models/gltf/");
-
-// loader.load("collision-world.glb", (gltf) => {
-//   scene.add(gltf.scene);
-
-//   worldOctree.fromGraphNode(gltf.scene);
-
-//   gltf.scene.traverse((child) => {
-//     if (child.isMesh) {
-//       child.castShadow = true;
-//       child.receiveShadow = true;
-
-//       if (child.material.map) {
-//         child.material.map.anisotropy = 4;
-//       }
-//     }
-//   });
-
-//   const helper = new OctreeHelper(worldOctree);
-//   helper.visible = false;
-//   scene.add(helper);
-
-//   const gui = new GUI({ width: 200 });
-//   gui.add({ debug: false }, "debug").onChange(function (value) {
-//     helper.visible = value;
-//   });
-
-//   animate();
-// });
+// --- Out of bounds helper --- //
 
 function teleportPlayerIfOob() {
   if (camera.position.y <= -25) {
@@ -489,6 +450,8 @@ function teleportPlayerIfOob() {
     camera.rotation.set(0, 0, 0);
   }
 }
+
+// --- Main loop --- //
 
 function animate() {
   const deltaTime = Math.min(0.05, clock.getDelta()) / STEPS_PER_FRAME;
@@ -512,6 +475,8 @@ function animate() {
 
   requestAnimationFrame(animate);
 }
+
+// --- Landscape generation --- //
 
 function layeredNoise(x, z, noiseFn, octaves = 4, persistence = 0.5) {
   let total = 0;
@@ -570,6 +535,6 @@ landscape.receiveShadow = true;
 scene.add(landscape);
 worldOctree.fromGraphNode(landscape);
 
-
+// --- Run main loop --- //
 
 animate();
