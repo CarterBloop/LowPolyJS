@@ -537,42 +537,6 @@ worldOctree.fromGraphNode(landscape);
 
 // Buildings
 
-function findFlatAreas(geometry, flatnessThreshold = 0.05) {
-  const flatAreas = [];
-  const position = geometry.attributes.position;
-  // Analyze the vertices to find flat areas
-  // For simplicity, this example checks individual vertices. In a more complex implementation, you might check larger areas or use a more sophisticated method.
-  for (let i = 0; i < position.count; i++) {
-    const x = position.getX(i);
-    const z = position.getZ(i);
-    const y = position.getY(i);
-    // Check the slope around this vertex to determine if it's part of a flat area
-    if (Math.abs(position.getY(i + 1) - y) < flatnessThreshold &&
-      Math.abs(position.getY(i - 1) - y) < flatnessThreshold) {
-      flatAreas.push({ x, y, z });
-    }
-  }
-  return flatAreas;
-}
-
-function generateBuildings(flatAreas) {
-  flatAreas.forEach(area => {
-    const size = Math.random() * 3 + 2; // Random size between 2 and 5
-    const height = Math.random() * 5 + 5; // Random height between 5 and 10
-    const geometry = new THREE.BoxGeometry(size, height, size);
-    const material = new THREE.MeshLambertMaterial({ color: Math.random() * 0xffffff });
-    const building = new THREE.Mesh(geometry, material);
-    building.position.set(area.x, area.y + height / 2, area.z);
-    building.castShadow = true;
-    building.receiveShadow = true;
-    scene.add(building);
-  });
-}
-
-// Usage with your landscape
-const flatAreas = findFlatAreas(landscape.geometry);
-generateBuildings(flatAreas);
-
 
 // --- Run main loop --- //
 
